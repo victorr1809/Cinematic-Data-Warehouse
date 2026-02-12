@@ -38,7 +38,7 @@ def discover_ids(media_type, start_date, end_date):
                 f"{date_key}.gte": start_date,  # Ngày bắt đầu
                 f"{date_key}.lte": end_date,    # Ngày kết thúc
                 # "popularity.gte": 1.0,
-                "vote_count.gte": 1             # Lọc bớt rác
+                "vote_count.gte": 20            # Lọc bớt rác
             }    
             response = session.get(url, params=params, timeout=10)
             
