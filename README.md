@@ -1,3 +1,4 @@
 # Cinematic Data Warehouse
 Kho dữ liệu phim điện ảnh đa quốc gia từ năm 1990 tới hiện tại (có update) và Dashboard phân tích doanh thu, điểm IMDB, thể loại phim được yêu thích và những tác phẩm điện ảnh hay nhất từng được sản xuất
-> Idea is like a virus. Once an idea taken hold of the brain that almost impossible to eradicate. Idea that is fully formed, fully understood that sticks  (Inception 2010)
+> An idea is like a virus. Once an idea takes hold of the brain, it is almost impossible to eradicate. An idea that is fully formed and fully understood — it sticks.
+>                                                     Inception - Christopher Nolan
