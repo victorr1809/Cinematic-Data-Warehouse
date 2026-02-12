@@ -1,0 +1,41 @@
+services:
+# --- MinIO S3 ---
+  minio:
+    image: minio/minio:latest
+    container_name: minio_s3
+    ports:
+      - "9005:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: victor
+      MINIO_ROOT_PASSWORD: victor1234
+    volumes:
+      - ~/minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - network_1
+  
+# --- ClickHouse ---
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse_server
+    ports:
+      - "8123:8123"
+      - "9009:9000"
+    environment:
+      - CLICKHOUSE_DB=imdb_db
+      - CLICKHOUSE_USER=victor
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_PASSWORD=victor1234
+    volumes:
+      - ~/clickhouse-data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - network_1
+
+networks:
+  network_1:
+    driver: bridge
