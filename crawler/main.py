@@ -1,4 +1,3 @@
-# main.py
 import json
 import time
 import config
@@ -6,22 +5,14 @@ import tmdb_function
 import sys
 
 def run_crawler():
-    # media_type = config.MEDIA_TYPE
-    # start_date = config.START_DATE
-    # end_date = config.END_DATE
-    # api_key = config.API_KEY
-    # output_file = config.OUTPUT_FILE
-
-    # media_type = 'movie'
-    # start_date = '2025-02-01'
-    # end_date = '2025-03-01'
 
     media_type = config.MEDIA_TYPE
     start_date = config.START_DATE
     end_date = config.END_DATE
+    filter = config.FILTER
 
     file_name = f'{media_type}_data_{start_date}_{end_date}.jsonl'
-    output_file = f'{config.OUTPUT_FILE}/{file_name}'
+    output_file = f'{config.OUTPUT_FILE}/{media_type}/{file_name}'
 
     print(f"BẮT ĐẦU CRAWL: {media_type.upper()}")
     print(f"Thời gian: {start_date} đến {end_date}")
@@ -31,7 +22,7 @@ def run_crawler():
     print("\nĐang quét ID...")
     
     try:
-        id_list = tmdb_function.discover_ids(media_type,start_date,end_date)
+        id_list = tmdb_function.discover_ids(media_type,start_date,end_date, filter)
     except Exception as e:
         sys.exit(f"Lỗi nghiêm trọng khi Discover: {e}")
 
@@ -55,7 +46,11 @@ def run_crawler():
         try:
             raw_data = tmdb_function.get_movie_details(media_type, item_id)
             if raw_data:
-                clean_data = tmdb_function.parser(raw_data, media_type)
+                if (media_type == 'movie'):
+                    clean_data = tmdb_function.parser_movie(raw_data, media_type)
+                else:
+                    clean_data = tmdb_function.parser_series(raw_data, media_type)
+
                 data_batch.append(clean_data)
                 success_count += 1
 
@@ -100,15 +95,16 @@ def run_crawler():
 
 if __name__ == "__main__":
 
-    # Cú pháp: python main.py [type] [start] [end] 
-    if len(sys.argv) == 4:
+    # Cú pháp: python main.py [type] [filter] [start] [end] 
+    if len(sys.argv) == 5:
         # Lấy tham số từ dòng lệnh gán đè vào config
         config.MEDIA_TYPE = sys.argv[1]
-        config.START_DATE = sys.argv[2]
-        config.END_DATE = sys.argv[3]
+        config.FILTER = sys.argv[2]         # Bộ lọc
+        config.START_DATE = sys.argv[3]
+        config.END_DATE = sys.argv[4]
 
     elif len(sys.argv) > 1:
-        print("Sai cú pháp! Hãy nhập đủ: python main.py [movie/tv] [start_date] [end_date]")
+        print("Sai cú pháp! Hãy nhập đủ: python main.py [movie/tv] [filter] [start_date] [end_date]")
         sys.exit()
 
     run_crawler()
