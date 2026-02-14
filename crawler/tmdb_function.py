@@ -6,19 +6,6 @@ from config import API_KEY
 session = requests.Session()
 
 # --- Hàm lấy danh sách ID theo năm ---
-# def discover_ids(media_type, year, page=1):
-#     """Bước A: Lấy danh sách ID"""
-#     url = f"https://api.themoviedb.org/3/discover/{media_type}"
-#     params = {
-#         "api_key": API_KEY,
-#         "page": page,
-#         "sort_by": "popularity.desc",
-#         "primary_release_year" if media_type == "movie" else "first_air_date_year": year
-#     }
-#     return session.get(url, params=params).json()
-
-
-# --- Hàm lấy danh sách ID theo năm ---
 def discover_ids(media_type, start_date, end_date, filter):
     url = f"https://api.themoviedb.org/3/discover/{media_type}"
     date_key = "primary_release_date" if media_type == "movie" else "first_air_date"
@@ -66,7 +53,7 @@ def discover_ids(media_type, start_date, end_date, filter):
                     print(f"Đã lấy trang {page}/{total_pages}")
                 
                 page += 1
-                time.sleep(0.5)
+                time.sleep(0.2)
                 
             else:
                 print(f"❌ Lỗi API trang {page}: {response.status_code}")
@@ -103,15 +90,29 @@ def get_movie_details(media_type, item_id):
         return None
 
 
+# --- Hàm xử lý chung
+def process_array_data(raw_data):
+
+    # Xử lý genres, production_countries, production companies
+    genres = raw_data.get("genres", [])
+    genres_id = [item.get('id') for item in genres]     
+    genres_name = [item.get('name') for item in genres]
+
+    production_companies = raw_data.get("production_companies", [])
+    cp_id = [item.get("id") for item in production_companies]
+    cp_name = [item.get("name") for item in production_companies]
+
+    production_countries = raw_data.get("production_countries", [])
+    pc_iso = [item.get("iso_3166_1") for item in production_countries]
+
+    return genres_id, genres_name, cp_id, cp_name, pc_iso
+
+
 # --- Hàm lọc ra các trường dữ liệu quan trọng cho MOVIE
 def parser_movie(raw_data, media_type):
-    WRITER_JOBS = ("Writer", "Screenplay", "Story", "Co-Writer")
-    COMPOSER_JOBS = ("Original Music Composer", "Music", "Composer")
 
-    title = raw_data.get("title")
-    release_date = raw_data.get("release_date")
-    runtime = raw_data.get("runtime")
-    original_title = raw_data.get("original_title")
+    WRITER_JOBS = ("Writer", "Screenplay", "Story", "Co-Writer", "Story Editor")
+    COMPOSER_JOBS = ("Original Music Composer", "Music", "Composer") 
 
     # Xử lý CAST và director
     raw_cast = raw_data.get("credits", {}).get("cast", [])[:15]
@@ -150,16 +151,7 @@ def parser_movie(raw_data, media_type):
         elif job in COMPOSER_JOBS: composer_map[pid] = pname
 
     # Xử lý genres, production_countries, production companies
-    genres = raw_data.get("genres", [])
-    genres_id = [item.get('id') for item in genres]     
-    genres_name = [item.get('name') for item in genres]
-
-    production_companies = raw_data.get("production_companies", [])
-    cp_id = [item.get("id") for item in production_companies]
-    cp_name = [item.get("name") for item in production_companies]
-
-    production_countries = raw_data.get("production_countries", [])
-    pc_iso = [item.get("iso_3166_1") for item in production_countries]
+    genres_id, genres_name, cp_id, cp_name, pc_iso = process_array_data(raw_data)
 
     clean_data = {
         "id": raw_data.get("id"),
@@ -167,12 +159,12 @@ def parser_movie(raw_data, media_type):
         "title_type": media_type,
 
         # Thông tin cơ bản
-        "title": title,
-        "original_title": original_title,
+        "title": raw_data.get("title"),
+        "original_title": raw_data.get("original_title"),
 
         # Thông tin thời gian
-        "release_date": release_date,
-        "runtime": runtime,
+        "release_date": raw_data.get("release_date"),
+        "runtime": raw_data.get("runtime"),
         "status": raw_data.get("status"),
 
         # Điểm số & Độ phổ biến
@@ -212,13 +204,8 @@ def parser_movie(raw_data, media_type):
 
 # --- Hàm lọc ra các trường dữ liệu quan trọng cho TV SERIES
 def parser_series(raw_data, media_type):
-    WRITER_JOBS = ("Screenplay", "Writer", "Story", "Author")
+    WRITER_JOBS = ("Screenplay", "Writer", "Story", "Co-Writer", "Story Editor")
     COMPOSER_JOBS = ("Original Music Composer", "Music", "Composer")
-
-    # Xử lý genres, production_countries
-    genres = raw_data.get("genres", [])
-    genres_id = [item.get('id') for item in genres]     
-    genres_name = [item.get('name') for item in genres]
 
     # imdb_id
     external_ids = raw_data.get("external_ids", {})
@@ -234,15 +221,14 @@ def parser_series(raw_data, media_type):
     season_number = [item.get("season_number") for item in season]
     season_avg = [item.get("vote_average") for item in season]
 
-    # production_companies
-    production_companies = raw_data.get("production_companies", [])
-    cp_id = [item.get("id") for item in production_companies]
-    cp_name = [item.get("name") for item in production_companies]
+    # genres, production_companies, production_countries
+    genres_id, genres_name, cp_id, cp_name, pc_iso = process_array_data(raw_data)
 
-    # production_countries
-    production_countries = raw_data.get("production_countries", {})
-    pc_iso = [item.get("iso_3166_1") for item in production_countries]
-
+    # director
+    created_by = raw_data.get("created_by", [])
+    director_id = [item.get("id") for item in created_by]
+    director_name = [item.get("name") for item in created_by]
+    
     # cast
     raw_cast = raw_data.get("credits", {}).get("cast", [])[:15]
     raw_crew = raw_data.get("credits", {}).get("crew", [])
@@ -255,11 +241,6 @@ def parser_series(raw_data, media_type):
         cast_ids.append(actor.get('id'))
         cast_names.append(actor.get('name'))
         cast_characters.append(actor.get('character', '')) 
-    
-    # director
-    created_by = raw_data.get("created_by", [])
-    director_id = [item.get("id") for item in created_by]
-    director_name = [item.get("name") for item in created_by]
 
     # Xử lý crew
     writer_map = {}
