@@ -95,7 +95,7 @@ def run_crawler():
 
 if __name__ == "__main__":
 
-    # Cú pháp: python main.py [type] [filter] [start] [end] ư
+    # Cú pháp: python main.py [type] [filter] [start] [end] 
     if len(sys.argv) == 5:
         # Lấy tham số từ dòng lệnh gán đè vào config
         config.MEDIA_TYPE = sys.argv[1]

@@ -1,82 +1,103 @@
--- Bang title_akas
-CREATE TABLE bronze.title_akas (
-    titleId String,
-    ordering Int32,
+
+CREATE TABLE IF NOT exists bronze.movie_details(
+    id UInt64,
+    imdb_id Nullable(String),
+    
+    title_type String,
     title String,
-    region Nullable(String),
-    language Nullable(String),
-    types Nullable(String), -- Lưu tạm string để dbt tách array sau
-    attributes Nullable(String),
-    isOriginalTitle Nullable(UInt8)
-)
-ENGINE = MergeTree()
-ORDER BY (titleId, ordering); 
+    original_title String,
+    
+    release_date Nullable(String),
+    runtime UInt16,
+    status String,
+    
+    popularity Float32,
+    vote_average Float32,
+    vote_count UInt32,
+    budget UInt64,
+    revenue UInt64,
+    
 
--- Bang title_basics
-CREATE TABLE bronze.title_basics (
-    tconst String,
-    titleType String,
-    primaryTitle Nullable(String),
-    originalTitle Nullable(String),
-    isAdult Nullable(UInt8),
-    startYear Nullable(UInt16),
-    endYear Nullable(UInt16),
-    runtimeMinutes Nullable(UInt32),
-    genres Nullable(String)
-)
-ENGINE = MergeTree()
-ORDER BY tconst; -- Sắp xếp theo ID phim để tìm kiếm nhanh
+    genres_id Array(UInt32),
+    genres_name Array(String),
+    
+    production_companies_id Array(UInt32),
+    production_companies_name Array(String),
+    
+    production_countries Array(String),
+    origin_country Array(String),
+    original_language Nullable(String),
+    
+    cast_id Array(UInt64),
+    cast_name Array(String),
+    cast_character Array(String),
+    
+    director_id Array(UInt64),
+    director_name Array(String),
+    
+    writer_id Array(UInt64),
+    writer_name Array(String),
+    
+    composer_id Array(UInt64),
+    composer_name Array(String)
+) 
+ENGINE = MergeTree
+ORDER BY id;
 
--- Bang title_crew
-CREATE TABLE bronze.title_crew (
-    tconst String,
-    directors Nullable(String), -- Sẽ được parse thành Array ở tầng Silver
-    writers Nullable(String)
-)
-ENGINE = MergeTree()
-ORDER BY tconst;
 
--- Bang title_episode
-CREATE TABLE bronze.title_episode (
-    tconst String,
-    parentTconst String,
-    seasonNumber Nullable(Int32),
-    episodeNumber Nullable(Int32)
-)
-ENGINE = MergeTree()
-ORDER BY (parentTconst, tconst);
+drop table bronze.series_details
+CREATE TABLE IF NOT exists bronze.series_details(
+    id UInt64,
+    imdb_id Nullable(String),
+    
+    media_type String,
+    title String,
+    original_title String,
+    
+    first_air_date Nullable(String),
+    last_air_date Nullable(String),
+    status String,
+    in_production Bool,
+    
+    languages Array(String),
+    number_of_episodes UInt64,
+    number_of_seasons UInt32,
+    season_name Array(String),
+    season_number Array(UInt32),
+    season_vote_average Array(Float32), 
+    
+    popularity Float32,
+    series_vote_average Float32,
+    series_vote_count UInt32,
+    last_episode_vote_average Float32,
+    last_episode_vote_count UInt64,
+    
+    type Nullable(String), 
+    genres_id Array(UInt32),
+    genres_name Array(String),
+    
+    origin_country Array(String),
+    original_language Nullable(String), 
+    
+    production_companies_id Array(UInt32),
+    production_companies_name Array(String),  
+    production_countries Array(String),
+    
+    cast_id Array(UInt64),
+    cast_name Array(String),
+    cast_character Array(String),
+    
+    director_id Array(UInt64),
+    director_name Array(String),
+    
+    writer_id Array(UInt64),
+    writer_name Array(String),
+    
+    composer_id Array(UInt64),
+    composer_name Array(String)
+) 
+ENGINE = MergeTree
+ORDER BY id;
 
--- Bang title_principal
-CREATE TABLE bronze.title_principals (
-    tconst String,
-    ordering Int32,
-    nconst String,
-    category Nullable(String),
-    job Nullable(String),
-    characters Nullable(String)
-)
-ENGINE = MergeTree()
-ORDER BY (tconst, ordering);
-
--- Bang title_ratings
-CREATE TABLE bronze.title_ratings (
-    tconst String,
-    averageRating Float32,
-    numVotes UInt32
-)
-ENGINE = MergeTree()
-ORDER BY tconst;
-
--- Bang name_basics
-CREATE TABLE bronze.name_basics (
-    nconst String,
-    primaryName String,
-    birthYear Nullable(UInt16),
-    deathYear Nullable(UInt16),
-    primaryProfession Nullable(String),
-    knownForTitles Nullable(String)
-)
-ENGINE = MergeTree()
-ORDER BY nconst;
 
 
