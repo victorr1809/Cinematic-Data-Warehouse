@@ -37,4 +37,25 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 ## Data model 📊
 <img width="995" height="610" alt="Screenshot 2026-02-28 at 18 10 57" src="https://github.com/user-attachments/assets/5f90c3ce-d958-4edc-b873-828d2bd2dda8" />
 
+## Project structure 📂
+```text
+├── crawled_data/             # Raw JSON data from TMDB API (Bronze layer)
+├── crawler/                  # Crawl data code using API
+│ ├── config.py               
+│ └── crawl_media_data.py 
+│ └── crawl_static_data.py
+│ └── crawl_person_data.py
+│ └── tmdb_function.py
+│
+├── dbt_cinematic_dw/         # dbt project
+│ ├── macros/
+│ ├── models/                 # data models (bronze, silver, gold)
+│ └── dbt_project.yml
+│
+├── dbt-env/                  # Virtual python environment for dbt
+├── docker-compose.yml
+├── images/
+├── sql script/               # DDL and Insert scripts for Bronze Layer
+└── README.md
+```
 ## Setup
