@@ -75,8 +75,37 @@ Data model được lựa chọn là Galaxy Schema bởi vì dữ liệu gồm n
 
 
 ## Setup 
-Cài đặt dbt trong môi trường ảo (virtual env)
+Bạn có thể cài đặt dbt trong môi trường ảo (virtual env) hoặc cài thẳng vào môi trường chính.
 > Tạo môi trường ảo
+```text
+python3.xx -m venv dbt-env
+```
+### Cài đặt các depedencies
+```text
+# Chạy dbt với ClickHouse
+pip install dbt-core
+pip install dbt-clickhouse
+
+# Kết nối với ClickHouse qua python
+pip install clickhouse-connect
+
+# Kết nối với MinIO S3 qua python
+pip install boto3
+pip install minio
+```
+### Tạo dbt project
+```text
+dbt init dbt_cinematic_dw
+```
+### Chạy thử
+> Để crawl dữ liệu movie/series từ [TMDB](https://www.themoviedb.org/?language=vi) sử dụng cú pháp sau
+```text
+python crawl_media_data.py [type] [filter] [start_date] [end_date]
+
+Ví dụ:
+python crawl_media_data.py movie 100 2026-01-01 2026-02-02
+(crawl movie từ 2026-01-01 đến 2026-02-02 với điều kiện vote_count >= 100)
+```
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
