@@ -39,7 +39,12 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 
 ## Project structure 📂
 ```text
-├── crawled_data/             # Raw JSON data from TMDB API (Bronze layer)
+├── crawled_data/             # Raw JSONL data from TMDB API
+│ ├── movie/
+│ ├── tv/
+│ ├── person/
+│ ├── static_data/
+| 
 ├── crawler/                  # Crawl data code using API
 │ ├── config.py               
 │ └── crawl_media_data.py 
