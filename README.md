@@ -22,20 +22,16 @@ Dự án áp dụng pipeline **ELT (Extract - Load - Transform)** thay vì ETL t
 - **ClickHouse:** raw data là JSONL nên có nhiều trường thông tin lồng vào nhau (`nested`) và có những trường dạng danh sách (`list`). RDBMS truyền thống xử lý kiểu dữ liệu này có phần phức tạp, ClickHouse hỗ trợ lưu trữ với kiểu dữ liệu `Array()` điều này giúp xử lý dạng dữ liệu này đơn giản hoá đi đáng kể. ClickHouse kết hợp rất tốt với S3, khi nó có thể đọc trực tiếp data dưới dạng `JSONL` lưu trên S3 và load thẳng vào bảng.
 - **DBT:** cho phép module hóa code SQL, quản lý phiên bản, tự động nhận diện thứ tự chạy các bảng qua hàm `{{ ref() }}`.
 
-### Data source: TMDB API
-Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie Database) để lấy dữ liệu phim điện ảnh. TMDB là một nền tảng cơ sở dữ liệu phim điện ảnh rất phổ biến, cung cấp nhiều khía cạnh thông tin của 1 bộ phim như:
-- Thông tin cơ bản
-- Doanh thu, nguồn vốn
-- Điểm đánh giá
-- Thông tin diễn viên
-- Công ty sản xuất
-- Nhiều thông tin khác
-
 ## Data Architecture 🏗️
 <img width="2400" height="1350" alt="architecture" src="https://github.com/user-attachments/assets/b73f1687-be91-4317-850a-180a482a2739" />
 
-## Data model 📊
-<img width="995" height="610" alt="Screenshot 2026-02-28 at 18 10 57" src="https://github.com/user-attachments/assets/5f90c3ce-d958-4edc-b873-828d2bd2dda8" />
+### Data source 💻
+Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie Database) để lấy dữ liệu phim điện ảnh. TMDB là một nền tảng cơ sở dữ liệu phim điện ảnh rất phổ biến, cung cấp nhiều khía cạnh thông tin của 1 bộ phim như:
+- Thông tin cơ bản
+- Doanh thu, nguồn vốn
+- Thông tin diễn viên
+- Công ty sản xuất
+- Nhiều thông tin khác
 
 ## Project structure 📂
 ```text
@@ -63,4 +59,27 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 ├── sql script/               # DDL and Insert scripts for Bronze Layer
 └── README.md
 ```
-## Setup
+
+## Data flow (dbt dags) 🌊
+<img width="1022" height="574" alt="dbt-dags" src="https://github.com/user-attachments/assets/cfbb89f1-e1b3-46a6-abc8-0e9d3ad049a5" />
+
+* Flattern Array: Sử dụng `array join` trong ClickHouse để flattern các cột mảng, sau đó tách chúng thành các bảng riêng.
+* Bridge table: Xây dựng các bảng cầu nối (Bridge table) để tách các bảng có mối quan hệ N-N (Many to Many) thành 1-N.
+
+## Data model 📊
+<img width="995" height="610" alt="Screenshot 2026-02-28 at 18 10 57" src="https://github.com/user-attachments/assets/5f90c3ce-d958-4edc-b873-828d2bd2dda8" />
+
+Data model được lựa chọn là Galaxy Schema bởi vì dữ liệu gồm nhiều thực thể (phim rạp, phim bộ) và nhiều luồng sự kiện khác nhau (doanh thu, điểm số, thông tin theo từng mùa). Galaxy schema cho phép có nhiều bảng Fact (fact_score, fact_finance, fact_seasons) để xử lý từng nghiệp vụ với mức độ chi tiết nhất định.
+
+## Dashboard (Update)
+
+
+## Setup 
+Cài đặt dbt trong môi trường ảo (virtual env)
+> Tạo môi trường ảo
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
+![ClickHouse](https://img.shields.io/badge/ClickHouse-FFCC01?style=for-the-badge&logo=clickhouse&logoColor=black)
+![dbt](https://img.shields.io/badge/dbt-FF694B?style=for-the-badge&logo=dbt&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
