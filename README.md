@@ -75,8 +75,12 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 
 Data model được lựa chọn là Galaxy Schema bởi vì dữ liệu gồm nhiều thực thể (phim rạp, phim bộ) và nhiều luồng sự kiện khác nhau (doanh thu, điểm số, thông tin theo từng mùa). Galaxy schema cho phép có nhiều bảng Fact (fact_score, fact_finance, fact_seasons) để xử lý từng nghiệp vụ với mức độ chi tiết nhất định.
 
-## Dashboard (Update)
+## Dashboard 
+(Update)
 
+## Key features 🎯
+* Áp dụng pipeline ELT, cơ chế lưu trữ an toàn, linh hoạt, raw data có thể được sử dụng bởi nhiều mục đích khác nhau.
+* Xử lý dữ liệu dạng mảng bằng SQL thông qua ClickHouse
 
 ## Setup 
 Bạn có thể cài đặt dbt trong môi trường ảo (virtual env) hoặc cài thẳng vào môi trường chính.
