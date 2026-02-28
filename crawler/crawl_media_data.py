@@ -4,7 +4,7 @@ import config
 import tmdb_function
 import sys
 
-def run_crawler():
+def crawl_media_data():
 
     media_type = config.MEDIA_TYPE
     start_date = config.START_DATE
@@ -24,7 +24,7 @@ def run_crawler():
     try:
         id_list = tmdb_function.discover_ids(media_type,start_date,end_date, filter)
     except Exception as e:
-        sys.exit(f"Lỗi nghiêm trọng khi Discover: {e}")
+        sys.exit(f"Lỗi khi Discover: {e}")
 
     total_ids = len(id_list)
     if total_ids == 0:
@@ -93,6 +93,9 @@ def run_crawler():
     print(f"Thất bại: {error_count}")
     print("="*60)
 
+    print("Đẩy dữ liệu lên MinIO S3")
+    tmdb_function.upload_jsonl_to_minio(output_file, media_type)
+
 if __name__ == "__main__":
 
     # Cú pháp: python main.py [type] [filter] [start] [end] 
@@ -104,7 +107,7 @@ if __name__ == "__main__":
         config.END_DATE = sys.argv[4]
 
     elif len(sys.argv) > 1:
-        print("Sai cú pháp! Hãy nhập đủ: python main.py [movie/tv] [filter] [start_date] [end_date]")
+        print("Sai cú pháp! Hãy nhập đủ: python crawl_media_data.py [movie/tv] [filter] [start_date] [end_date]")
         sys.exit()
 
-    run_crawler()
+    crawl_media_data()

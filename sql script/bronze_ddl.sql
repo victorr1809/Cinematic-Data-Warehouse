@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT exists bronze.movie_details(
     id UInt64,
     imdb_id Nullable(String),
@@ -39,13 +38,14 @@ CREATE TABLE IF NOT exists bronze.movie_details(
     writer_name Array(String),
     
     composer_id Array(UInt64),
-    composer_name Array(String)
+    composer_name Array(String),
+    
+   	_ingested_at DateTime default now()
 ) 
 ENGINE = MergeTree
 ORDER BY id;
 
 
-drop table bronze.series_details
 CREATE TABLE IF NOT exists bronze.series_details(
     id UInt64,
     imdb_id Nullable(String),
@@ -94,10 +94,27 @@ CREATE TABLE IF NOT exists bronze.series_details(
     writer_name Array(String),
     
     composer_id Array(UInt64),
-    composer_name Array(String)
+    composer_name Array(String),
+    
+    _ingested_at DateTime default now()
 ) 
 ENGINE = MergeTree
 ORDER BY id;
 
 
+create table bronze.country_dict (
+	iso_code String,
+	english_name String
+)
+engine=MergeTree()
+order by iso_code;
+
+
+
+create table bronze.language_dict (
+	iso_code String,
+	english_name String
+)
+engine=MergeTree()
+order by iso_code;
 

@@ -1,6 +1,10 @@
 import requests
 import time
-from config import API_KEY
+import clickhouse_connect
+import config
+import os
+from minio import Minio
+from minio.error import S3Error
 
 
 session = requests.Session()
@@ -18,7 +22,7 @@ def discover_ids(media_type, start_date, end_date, filter):
     while page <= total_pages:
         try:
             params = {
-                "api_key": API_KEY,
+                "api_key": config.API_KEY,
                 "language": "en-US",
                 "sort_by": "popularity.desc",
                 "page": page,
@@ -313,4 +317,143 @@ def parser_series(raw_data, media_type):
         "composer_name": list(composer_map.values())
     }
     return clean_data
+
+
+def parser_person(raw_data):
+    clean_data = {
+        "person_id": raw_data.get("id"),
+        "imdb_id": raw_data.get("imdb_id"),
+        "name": raw_data.get("name"),
+        "birthday": raw_data.get("birthday"),
+        "deathday": raw_data.get("deathday"),
+        "gender": raw_data.get("gender"),
+        "profession": raw_data.get("known_for_department"), 
+        "place_of_birth": raw_data.get("place_of_birth"),
+        "popularity": raw_data.get("popularity")
+    }
+    return clean_data
+
+
+def update_change_id(media_type, start_date, end_date):
+    url = f"https://api.themoviedb.org/3/{media_type}/changes"
     
+    collected_ids = []
+    page = 1
+    total_pages = 1
+    
+    print(f"🔄 Đang quét thay đổi của {media_type.upper()} từ {start_date} đến {end_date}")
+
+    while page <= total_pages:
+        try:
+            params = {
+                "api_key": config.API_KEY,
+                "start_date": start_date,  # Định dạng YYYY-MM-DD
+                "end_date": end_date,      # Tối đa cách start_date 14 ngày
+                "page": page
+            }
+            
+            response = session.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                results = data.get("results", [])
+                batch_ids = [item['id'] for item in results]
+                collected_ids.extend(batch_ids)
+                
+                if page == 1:
+                    total_pages = data.get("total_pages", 1)
+                    total_results = data.get("total_results", 0)
+                    print(f"Tìm thấy {total_results} ID có thay đổi ({total_pages} trang).")
+
+                if page % 20 == 0 or page == total_pages:
+                    print(f"Đã lấy trang {page}/{total_pages}")
+                
+                page += 1
+                time.sleep(0.1)
+            else:
+                print(f"Lỗi API Changes trang {page}: {response.status_code}")
+                break
+                
+        except Exception as e:
+            print(f"Lỗi kết nối tại API Changes: {e}")
+            time.sleep(2)
+
+    # Loại bỏ ID trùng lặp (nếu có) trước khi trả về
+    return list(set(collected_ids))
+
+# Kết nối với ClickHouse 
+def connect_clickhouse():
+    try:
+        client = clickhouse_connect.get_client(
+        host=config.CLICKHOUSE_HOST, 
+        port=config.CLICKHOUSE_PORT,
+        username=config.CLICKHOUSE_USER, 
+        password=config.CLICKHOUSE_PASSWORD,
+        database=config.CLICKHOUSE_DB
+        )
+        print("✅ Kết nối ClickHouse trên Docker thành công!")
+        return client
+    except Exception as e:
+        print(f"Lỗi kết nối ClickHouse: {e}")
+        exit()
+
+# Crawl person details
+def get_person_details(person_id):
+    
+    url = f"https://api.themoviedb.org/3/person/{person_id}?language=en-US"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {config.API_TOKEN}"
+    }
+
+    response = requests.get(url, headers=headers, timeout=10)
+    if response.status_code == 200:
+        return response.json()
+    elif response.status_code == 404:
+        print(f"Không tìm thấy người có ID {person_id} trên TMDB.")
+        return None
+    else:
+        print(f"Lỗi API (Code {response.status_code}) ở ID {person_id}")
+        return None
+    
+# Upload file len MinIO
+def upload_jsonl_to_minio(file_path, minio_folder):
+
+    # Khởi tạo MinIO Client
+    try:
+        minio_client = Minio(
+            config.MINIO_ENDPOINT,
+            access_key=config.MINIO_ACCESS_KEY,
+            secret_key=config.MINIO_SECRET_KEY,
+            secure=False # FALSE vì chạy local dùng HTTP, không có HTTPS
+        )
+    except Exception as e:
+        print("Ket noi khong thanh cong voi MinIO:" + e)
+        return False
+
+    file_name = os.path.basename(file_path)
+    minio_path = f"{minio_folder}/{file_name}"
+
+    try:
+        # Kiểm tra và tạo Bucket nếu chưa có
+        if not minio_client.bucket_exists(config.MINIO_BUCKET):
+            minio_client.make_bucket(config.MINIO_BUCKET)
+            print(f"Đã tạo bucket mới: '{config.MINIO_BUCKET}'")
+
+        # Thực hiện đẩy file
+        print(f"Đang tải lên '{file_name}' vào '{config.MINIO_BUCKET}/{minio_path}'...")
+        minio_client.fput_object(
+            bucket_name=config.MINIO_BUCKET,
+            object_name=minio_path,
+            file_path=file_path,
+            content_type="application/jsonlines" 
+        )
+        print(f"✅ Tải lên thành công")
+        return True
+
+    except S3Error as e:
+        print(f"Lỗi S3 từ MinIO: {e}")
+        return False
+    except FileNotFoundError:
+        print(f"Không tìm thấy file tại: {minio_path}")
+        return False

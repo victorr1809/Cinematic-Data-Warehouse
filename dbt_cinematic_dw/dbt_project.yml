@@ -1,0 +1,27 @@
+name: 'dbt_cinematic_dw'
+version: '1.0.0'
+
+profile: 'dbt_cinematic_dw'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dbt_cinematic_dw:
+    +materialized: table
+    +engine: "MergeTree()"
+    +order_by: "tuple()"
+
+    silver:
+      +schema: silver
+
+    gold:
+      +schema: gold
