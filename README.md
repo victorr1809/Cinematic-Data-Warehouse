@@ -32,7 +32,10 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 - Thông tin diễn viên
 - Công ty sản xuất
 - Nhiều thông tin khác
-
+> Dữ liệu thu thập về có dạng JSONL như sau:
+```text
+{"id": 157336, "imdb_id": "tt0816692", "title_type": "movie", "title": "Interstellar", "original_title": "Interstellar", "release_date": "2014-11-05", "runtime": 169, "status": "Released", "popularity": 46.5417, "vote_average": 8.467, "vote_count": 38846, "budget": 165000000, "revenue": 746606706, "genres_id": [12, 18, 878], "genres_name": ["Adventure", "Drama", "Science Fiction"], "production_companies_id": [923, 9996, 13769], "production_companies_name": ["Legendary Pictures", "Syncopy", "Lynda Obst Productions"], "production_countries": ["GB", "US"], "origin_country": ["US"], "original_language": "en", "cast_id": [10297, 1813, 3895, 83002, 1893, 8210, 17052, 851784, 9560, 12074, 58549, 55411, 1190668, 1892, 40039], "cast_name": ["Matthew McConaughey", "Anne Hathaway", "Michael Caine", "Jessica Chastain", "Casey Affleck", "Wes Bentley", "Topher Grace", "Mackenzie Foy", "Ellen Burstyn", "John Lithgow", "Bill Irwin", "David Gyasi", "Timothée Chalamet", "Matt Damon", "Josh Stewart"], "cast_character": ["Cooper", "Brand", "Professor Brand", "Murph", "Tom", "Doyle", "Getty", "Murph (10 Yrs.)", "Murph (older)", "Donald", "TARS (voice)", "Romilly", "Tom (15 Yrs.)", "Mann", "CASE (voice)"], "director_id": [525], "director_name": ["Christopher Nolan"], "writer_id": [527, 525], "writer_name": ["Jonathan Nolan", "Christopher Nolan"], "composer_id": [947], "composer_name": ["Hans Zimmer"]}
+```
 ## Project structure 📂
 ```text
 ├── crawled_data/             # Raw JSONL data from TMDB API
