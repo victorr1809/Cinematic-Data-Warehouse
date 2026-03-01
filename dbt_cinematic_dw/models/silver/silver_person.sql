@@ -20,7 +20,7 @@ with person_data as (
         place_of_birth,
         popularity,
         _ingested_at
-    FROM bronze.person_details
+    FROM {{ source('bronze', 'person_details') }}
     {% if is_incremental() %}
     WHERE _ingested_at > (SELECT max(_ingested_at) FROM {{ this }})
     {% endif %}
@@ -38,7 +38,7 @@ SELECT
         ELSE 'No' 
     END AS is_alive,
     CASE 
-        -- Nếu TMDB không có ngày sinh -> Không thể tính tuổi, trả về NULL
+        -- Nếu TMDB không có ngày sinh thì không thể tính tuổi nên trả về NULL
         WHEN birthday IS NULL THEN NULL
         WHEN deathday IS NOT NULL THEN floor((toYYYYMMDD(deathday) - toYYYYMMDD(birthday)) / 10000)
         ELSE floor((toYYYYMMDD(today()) - toYYYYMMDD(birthday)) / 10000)       

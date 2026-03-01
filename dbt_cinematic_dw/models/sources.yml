@@ -6,3 +6,4 @@ sources:
     tables:
       - name: movie_details
       - name: series_details
+      - name: person_details
