@@ -59,13 +59,13 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 │
 ├── dbt-env/                  # Virtual python environment for dbt
 ├── docker-compose.yml
-├── images/
-├── sql script/               # DDL and Insert scripts for Bronze Layer
+├── docs/
 └── README.md
+├── sql script/               # DDL and Insert scripts for Bronze Layer
 ```
 
 ## Data flow (dbt dags) 🌊
-<img width="1022" height="574" alt="dbt-dags" src="https://github.com/user-attachments/assets/cfbb89f1-e1b3-46a6-abc8-0e9d3ad049a5" />
+![dbt-dags](docs/dbt-dags.png)
 
 * Flattern Array: Sử dụng `array join` trong ClickHouse để flattern các cột mảng, sau đó tách chúng thành các bảng riêng.
 * Bridge table: Xây dựng các bảng cầu nối (Bridge table) để tách các bảng có mối quan hệ N-N (Many to Many) thành 1-N.
