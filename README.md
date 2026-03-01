@@ -70,6 +70,9 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 * Flattern Array: Sử dụng `array join` trong ClickHouse để flattern các cột mảng, sau đó tách chúng thành các bảng riêng.
 * Bridge table: Xây dựng các bảng cầu nối (Bridge table) để tách các bảng có mối quan hệ N-N (Many to Many) thành 1-N.
 
+## Medallion Architecture 🥈
+![medal](docs/medallion.png)
+
 ## Data model 📊
 <img width="995" height="610" alt="Screenshot 2026-02-28 at 18 10 57" src="https://github.com/user-attachments/assets/5f90c3ce-d958-4edc-b873-828d2bd2dda8" />
 
