@@ -1,3 +1,4 @@
+-- Bảng movie_details
 CREATE TABLE IF NOT exists bronze.movie_details(
     id UInt64,
     imdb_id Nullable(String),
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT exists bronze.movie_details(
 ENGINE = MergeTree
 ORDER BY id;
 
-
+-- Bảng series_details
 CREATE TABLE IF NOT exists bronze.series_details(
     id UInt64,
     imdb_id Nullable(String),
@@ -101,20 +102,34 @@ CREATE TABLE IF NOT exists bronze.series_details(
 ENGINE = MergeTree
 ORDER BY id;
 
+-- Bảng person_details (thông tin chi tiết diễn viên, đạo diễn, composer,...)
+CREATE TABLE bronze.person_details (
+	person_id UInt64,
+	imdb_id Nullable(String),
+	name String,
+	birthyear String,
+	deathyear String,
+	profession,
+	place_of_birth,
+	popularity
+)
+ENGINE = MergeTree
+ORDER BY person_id
 
-create table bronze.country_dict (
+
+-- Bảng country_dict (mapping country code)
+CREATE TABLE bronze.country_dict (
 	iso_code String,
 	english_name String
 )
-engine=MergeTree()
-order by iso_code;
+ENGINE=MergeTree()
+ORDER BY iso_code;
 
-
-
-create table bronze.language_dict (
+-- Bảng language_dict (mapping language code)
+CREATE TABLE bronze.language_dict (
 	iso_code String,
 	english_name String
 )
-engine=MergeTree()
-order by iso_code;
+ENGINE=MergeTree()
+ORDER BY iso_code;
 
