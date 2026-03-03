@@ -1,3 +1,5 @@
+name: cinematic-data-warehouse
+
 services:
 # --- MinIO S3 ---
   minio:
@@ -36,6 +38,74 @@ services:
     networks:
       - network_1
 
+# --- Metabase ---
+  metabase:
+    image: metabase/metabase
+    container_name: metabase
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ~/metabase-data:/metabase-data
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+      MB_PLUGINS_DIR: /metabase-data/plugins
+    networks:
+      - network_1
+
+# --- Superset ---
+
+  # superset_redis
+  superset_redis:
+    image: redis:7-alpine
+    container_name: superset_redis
+    restart: unless-stopped
+    volumes:
+      - ~/superset-data/redis:/data
+    networks:
+      - network_1
+
+  # superset_app
+  superset:
+    image: apache/superset:latest
+    container_name: superset_app
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_SECRET_KEY: "victor1234"
+      SQLALCHEMY_DATABASE_URI: "sqlite:////app/superset_home/superset.db"
+      REDIS_URL: "redis://superset_redis:6379/0"
+    volumes:
+      - ~/superset-data/home:/app/superset_home
+      - ./superset_config.py:/app/pythonpath/superset_config.py
+    depends_on:
+      - superset_redis
+    networks:
+      - network_1
+
+  # superset_init
+  superset_init:
+    image: apache/superset:latest
+    container_name: superset_init
+    restart: "no"
+    command: >
+      bash -c "
+        superset db upgrade &&
+        superset fab create-admin --username victor --firstname ha --lastname manh --email haducmanh990@gmail.com --password victor1234 &&
+        superset init
+      "
+    environment:
+      SUPERSET_SECRET_KEY: "victor1234"
+      SQLALCHEMY_DATABASE_URI: "sqlite:////app/superset_home/superset.db"
+      REDIS_URL: "redis://superset_redis:6379/0"
+    volumes:
+      - ~/superset-data/home:/app/superset_home
+    depends_on:
+      - superset_redis
+    networks:
+      - network_1
+    
 networks:
   network_1:
     driver: bridge
