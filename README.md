@@ -76,7 +76,7 @@ Dự án sử dụng API từ [**TMDB**](https://www.themoviedb.org/) (The Movie
 ## Data model 📊
 <img width="995" height="610" alt="Screenshot 2026-02-28 at 18 10 57" src="https://github.com/user-attachments/assets/5f90c3ce-d958-4edc-b873-828d2bd2dda8" />
 
-Data model được lựa chọn là Galaxy Schema bởi vì dữ liệu gồm nhiều thực thể (phim rạp, phim bộ) và nhiều luồng sự kiện khác nhau (doanh thu, điểm số, thông tin theo từng mùa). Galaxy schema cho phép có nhiều bảng Fact (fact_score, fact_finance, fact_seasons) để xử lý từng nghiệp vụ với mức độ chi tiết nhất định.
+Data model được lựa chọn là Galaxy Schema bởi vì dữ liệu gồm nhiều thực thể (phim rạp, phim bộ) và nhiều luồng sự kiện khác nhau (doanh thu, điểm số, thông tin theo từng mùa). Galaxy schema cho phép có nhiều bảng Fact để xử lý từng nghiệp vụ với mức độ chi tiết nhất định.
 
 Thông tin các bảng xem tại: [data_catalog.md](docs/data_catalog.md)
 ## Dashboard 
